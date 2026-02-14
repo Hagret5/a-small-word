@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>A word</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: #000;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
+            font-family: 'Georgia', serif;
+        }
+
+        .container {
+            text-align: center;
+            padding: 20px;
+            max-width: 800px;
+        }
+
+        .message {
+            color: #fff;
+            font-size: 2rem;
+            line-height: 1.6;
+            opacity: 0;
+            animation: fadeInOut 4s ease-in-out;
+            text-shadow: 0 0 20px rgba(255, 255, 255, 0.5);
+        }
+
+        @keyframes fadeInOut {
+            0% {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            15% {
+                opacity: 1;
+                transform: translateY(0);
+            }
+            85% {
+                opacity: 1;
+                transform: translateY(0);
+            }
+            100% {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+        }
+
+        /* Sparkles */
+        .sparkle {
+            position: absolute;
+            width: 3px;
+            height: 3px;
+            background: #fff;
+            border-radius: 50%;
+            animation: sparkle 1.5s infinite;
+        }
+
+        @keyframes sparkle {
+            0%, 100% {
+                opacity: 0;
+                transform: scale(0);
+            }
+            50% {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+
+        .final-message {
+            display: none;
+            color: #fff;
+            font-size: 2.5rem;
+            animation: finalReveal 2s ease-in-out forwards;
+            position: relative;
+            z-index: 10;
+        }
+
+        @keyframes finalReveal {
+            0% {
+                opacity: 0;
+                transform: scale(0.5);
+            }
+            100% {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+
+        /* Pink burst effect */
+        .burst-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: radial-gradient(circle, #ff1493, #ff69b4, transparent);
+            opacity: 0;
+            pointer-events: none;
+            z-index: 5;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .burst-emoji {
+            font-size: 3rem;
+            opacity: 0;
+        }
+
+        .emoji-active {
+            opacity: 1;
+        }
+
+        .burst-active {
+            animation: pinkBurst 1.5s ease-out forwards;
+        }
+
+        @keyframes pinkBurst {
+            0% {
+                opacity: 0;
+                transform: scale(0);
+            }
+            30% {
+                opacity: 1;
+                transform: scale(2);
+            }
+            100% {
+                opacity: 0;
+                transform: scale(4);
+            }
+        }
+
+        /* Flash effect */
+        .flash {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: #fff;
+            opacity: 0;
+            pointer-events: none;
+            z-index: 9;
+        }
+
+        .flash-active {
+            animation: flash 0.5s ease-out;
+        }
+
+        @keyframes flash {
+            0% {
+                opacity: 0;
+            }
+            50% {
+                opacity: 0.8;
+            }
+            100% {
+                opacity: 0;
+            }
+        }
+
+        /* Pink particles */
+        .particle {
+            position: absolute;
+            width: 10px;
+            height: 10px;
+            background: #ff69b4;
+            border-radius: 50%;
+            opacity: 0;
+        }
+
+        .particle-active {
+            animation: particleBurst 2s ease-out forwards;
+        }
+
+        @keyframes particleBurst {
+            0% {
+                opacity: 1;
+                transform: translate(0, 0) scale(1);
+            }
+            100% {
+                opacity: 0;
+                transform: translate(var(--x), var(--y)) scale(0);
+            }
+        }
+
+        @media (max-width: 768px) {
+            .message {
+                font-size: 1.3rem;
+            }
+            .final-message {
+                font-size: 1.8rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="burst-overlay" id="burstOverlay">
+        <div class="burst-emoji" id="burstEmoji">🌹</div>
+    </div>
+    <div class="flash" id="flash"></div>
+    <div class="container">
+        <div id="messageContainer"></div>
+    </div>
+
+    <script>
+        const messages = [
+            "had lmrra maghadich n3tik chi gift li t9dr tkoun waaa3ra.",
+            "Wla chi jerda dyal lwerd .",
+            "I made you this to tell u there is no folower can match the follower reading this now🙂 .",
+            "And for some reason u brought happiness for someone wakha mrra mrra makatbanch 3lih hhhh.",
+            "made his life looks good and he's so grateful for that.",
+            "He hopes u to be happy on your life and all the time w tkouni dayman bikhir"
+        ];
+
+        let currentIndex = 0;
+        const container = document.getElementById('messageContainer');
+
+        // Create sparkles
+        function createSparkle() {
+            const sparkle = document.createElement('div');
+            sparkle.className = 'sparkle';
+            sparkle.style.left = Math.random() * 100 + 'vw';
+            sparkle.style.top = Math.random() * 100 + 'vh';
+            sparkle.style.animationDelay = Math.random() + 's';
+            document.body.appendChild(sparkle);
+
+            setTimeout(() => {
+                sparkle.remove();
+            }, 1500);
+        }
+
+        // Generate sparkles continuously
+        setInterval(createSparkle, 300);
+
+        function showMessage() {
+            if (currentIndex < messages.length) {
+                container.innerHTML = `<div class="message">${messages[currentIndex]}</div>`;
+                currentIndex++;
+                setTimeout(showMessage, 5000);//Time of the msg
+            } else {
+                // Trigger pink burst and flash effect IMMEDIATELY
+                // Create flash
+                const flash = document.getElementById('flash');
+                flash.classList.add('flash-active');
+                
+                // Create pink burst
+                const burst = document.getElementById('burstOverlay');
+                burst.classList.add('burst-active');
+                
+                // Animate the emoji
+                const emoji = document.getElementById('burstEmoji');
+                emoji.classList.add('emoji-active');
+                
+                // Create particles
+                for (let i = 0; i < 50; i++) {
+                    createParticle();
+                }
+                
+                // Show final message after burst
+                setTimeout(() => {
+                    container.innerHTML = '<div class="final-message">Happy Valentine\'s Day! ❤️<br>I Love You 💕</div>';
+                }, 800);
+            }
+        }
+
+        function createParticle() {
+            const particle = document.createElement('div');
+            particle.className = 'particle';
+            
+            const angle = Math.random() * Math.PI * 2;
+            const distance = 200 + Math.random() * 400;
+            const x = Math.cos(angle) * distance;
+            const y = Math.sin(angle) * distance;
+            
+            particle.style.setProperty('--x', `${x}px`);
+            particle.style.setProperty('--y', `${y}px`);
+            particle.style.left = '50%';
+            particle.style.top = '50%';
+            
+            document.body.appendChild(particle);
+            
+            setTimeout(() => {
+                particle.classList.add('particle-active');
+            }, 10);
+            
+            setTimeout(() => {
+                particle.remove();
+            }, 2000);
+        }
+
+        // Start the animation
+        setTimeout(showMessage, 500);
+    </script>
+</body>
+</html>
